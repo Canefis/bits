@@ -23,8 +23,8 @@ The final specification is yet to be discussed. We can only propose several crit
 
 - Lack of demand for subnet Alpha token
 - Low subnet price and emissions
-- Centralized distribution of alpha / miner IP / miner coldkeys
 - Unfavorable ratio and/or values of subnet parameters such as TAO and Alpha pool liquidity, Alpha circulating, Alpha issued, Alpha burned, FDV, Alpha volume, etc.
+- Only allow deregistration of subnets which would have a higher value of Alpha from liquidation than from unstaking
 
 The current in-progress implementation may be used as a basis for such discussion, which is described below.
 
@@ -38,8 +38,8 @@ The current in-progress implementation may be used as a basis for such discussio
 
 - In `dissolve_network` / `remove_network`, perform full dTao cleanup:
   - Return the registration cost to the owner (or owners in case if it was a crowdloan)
-  - Destroy all α-in and α-out stakes  
   - Distribute remaining Tao to α-out stakers pro-rata
+  - Destroy all α-in and α-out stakes  
   - **Adjust the owner’s returned lock cost** by subtracting the portion of total emissions the owner actually received (`owner_received_emission = E * get_float_subnet_owner_cut()`), so the final refund is `max(0, lock_cost - owner_received_emission)`.
 - Maintain **root-only** access to direct calls for now
 
