@@ -3,7 +3,7 @@
 - **BIT Number:** 0016
 - **Title:** Subnet Deregistration
 - **Author(s):** John Spiigot, Greg Zaitsev
-- **Discussions-to:** [URL for discussion thread]
+- **Discussions-to:** https://discord.com/channels/1120750674595024897/1346557046761324545
 - **Status:** Draft
 - **Type:** Core
 - **Created:** 2025-08-12
