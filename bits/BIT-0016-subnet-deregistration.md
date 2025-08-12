@@ -36,7 +36,8 @@ The current in-progress implementation may be used as a basis for such discussio
 
 ### Network Dissolution 
 
-- In `dissolve_network` / `remove_network`, perform full dTao cleanup:  
+- In `dissolve_network` / `remove_network`, perform full dTao cleanup:
+  - Return the registration cost to the owner (or owners in case if it was a crowdloan)
   - Destroy all α-in and α-out stakes  
   - Distribute remaining Tao to α-out stakers pro-rata
   - **Adjust the owner’s returned lock cost** by subtracting the portion of total emissions the owner actually received (`owner_received_emission = E * get_float_subnet_owner_cut()`), so the final refund is `max(0, lock_cost - owner_received_emission)`.
