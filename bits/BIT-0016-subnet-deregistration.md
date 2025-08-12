@@ -48,7 +48,18 @@ Add new sudo hyperparameter `SubnetLimit` starting at `256`.
 
 ### High-Level Flow
 
-```text
+```mermaid
+flowchart TD
+    A[New Registration] --> B{Check Subnet Limit?}
+    B -->|No| C[Register New Subnet]
+
+    B -->|Yes| E[Prune a Subnet]
+    E --> F[Deregister]
+    F --> G[Register New Subnet]
+    
+    H[Deregistration<br/>] --> I[Destroy α-in/out]
+    I --> J[Distribute TAO]
+    J --> K[Remove Network]
 New Registration → check slot cap?
   ├─ No → register network, grant immunity
   └─ Yes → prune one subnet → deregister → register new
