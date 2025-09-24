@@ -1,13 +1,13 @@
 # BIT-000X: Distributed Subnet Ownership
 
-- **BIT Number:** 000X
+- **BIT Number:** 0018
 - **Title:** Distributed Subnet Ownership
 - **Author(s):** Loris Moulin (@l0r1s)
 - **Discussions-to:** TBD
 - **Status:** Draft
 - **Type:** Subtensor
 - **Created:** 2025-09-23
-- **Updated:** NA
+- **Updated:** 2025-09-23
 - **Requires:** NA
 - **Replaces:** NA
 
@@ -112,7 +112,7 @@ The profit distribution system automatically distributes the subnet's owner cut 
 
 #### Distribution Logic
 
-1. The on-chain managed distributed subnet account receives the owner cut
+1. The on-chain managed distributed subnet account receives the owner cut through coinbase logic
 2. The coinbase notifies that distribution has been done using the `OnDistribution` hook
 3. Owner cut is accumulated if we are not at the distribution interval `DistributedSubnetProfitInterval`
 4. Otherwise, we distribute to shareholders proportional to their shares of the owner cut, with alpha distributed directly to associated hotkeys
