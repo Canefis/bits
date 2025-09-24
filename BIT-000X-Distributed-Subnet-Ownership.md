@@ -88,10 +88,6 @@ _Key Design Decisions:_
 
 Both profit and governance shares are freely transferable between accounts, handling common errors where the transfer is not possible.
 
-#### Events and Notifications
-
-The distributed subnet system emits events for all major operations including proposal creation, voting, execution, share transfers, and profit distributions. These events must be defined accordingly and emitted correctly to provide transparency and enable off-chain monitoring of the system.
-
 ```rust
 pub fn transfer_profit_shares(
     distributed_subnet_id: DistributedSubnetId,
@@ -105,6 +101,10 @@ pub fn transfer_governance_shares(
     to_coldkey: T::AccountId,
 ) -> DispatchResult
 ```
+
+#### Events and Notifications
+
+The distributed subnet system emits events for all major operations including proposal creation, voting, execution, share transfers, and profit distributions. These events must be defined accordingly and emitted correctly to provide transparency and enable off-chain monitoring of the system.
 
 ### Profit Distribution
 
@@ -128,7 +128,7 @@ pub trait OnDistribution<AccountId, Balance> {
     fn notify(netuid: NetUid, owner_cut: Balance);
 }
 
-// The trait is also implemented for tuples of OnDistribution items
+// The trait is also implemented for tuples of OnDistribution items to allow later use of multiple distribution hooks for diferrent use cases.
 impl<A, B, AccountId, Balance> OnDistribution<AccountId, Balance> for (A, B)
 where
     A: OnDistribution<AccountId, Balance>,
@@ -162,10 +162,6 @@ impl pallet_subtensor::Config for Runtime {
     type OnDistribution = DistributedSubnetDistribution;
 }
 ```
-
-#### Possible improvements
-
-- Lending shares to someone account for some blocks, after that period, the ownership of the shares goes back automatically to the original lender
 
 ### Governance System
 
@@ -253,6 +249,7 @@ pub const MinVotingThreshold: Percent = Percent::from_percent(50); // 50% minimu
 - **MembersProportionMoreThan(66%)**: If 40% of members vote No, only 60% can vote Yes → Proposal automatically cancelled
 
 #### Storage Structures
+
 Essential storage structures for governance:
 
 ```rust
@@ -270,13 +267,13 @@ pub struct ProposalInfo<AccountId, BlockNumber, Call> {
 
 // Active proposal per distributed subnet
 pub type ActiveProposals<T> = StorageMap<
-    _, Twox64Concat, DistributedSubnetId, 
+    _, Twox64Concat, DistributedSubnetId,
     ProposalInfo<T::AccountId, BlockNumberFor<T>, T::Call>
 >;
 
 // Votes cast on active proposals
 pub type ProposalVotes<T> = StorageNMap<
-    _, 
+    _,
     (Twox64Concat, DistributedSubnetId),
     (Twox64Concat, ProposalId),
     (Twox64Concat, T::AccountId),
@@ -290,42 +287,54 @@ pub type ProposalVotes<T> = StorageNMap<
 ## Rationale
 
 ### Split Between Profit and Governance Shares
+
 The separation of profit and governance shares provides maximum flexibility for subnet ownership structures. This allows for scenarios where:
+
 - **Investors** can receive economic benefits without governance control
 - **Operators** can maintain governance control while sharing profits
 - **Contributors** can be rewarded with profit shares without voting rights
 - **Advisors** can have governance influence without economic exposure
 
 ### Alpha Instead of TAO Distribution
+
 Alpha distribution is chosen over TAO to avoid sell-pressure on the subnet. By distributing alpha directly to hotkeys:
+
 - **No market impact**: Alpha distribution doesn't affect TAO price
 - **Direct benefits**: Shareholders receive subnet-specific rewards
 - **Aligned incentives**: Rewards are tied to subnet performance
 - **Reduced complexity**: No need for TAO conversion mechanisms
 
 ### Voting Strategies
+
 The dual voting strategies (ShareProportionMoreThan and MembersProportionMoreThan) accommodate different governance philosophies:
+
 - **Share-based**: Weighted by economic stake (capitalist approach)
 - **Member-based**: One person, one vote (democratic approach)
 - **Flexibility**: Proposers can choose the most appropriate strategy
 - **Prevention of abuse**: Minimum thresholds prevent low-barrier proposals
 
 ### Single Active Proposal
+
 Limiting to one active proposal per subnet forces consensus and prevents governance gridlock:
+
 - **Forced focus**: All attention on one proposal at a time
 - **Quick resolution**: Proposals must pass or fail quickly
 - **Prevents spam**: Can't create competing proposals
 - **Efficient governance**: Streamlined decision-making process
 
 ### Locked Shares During Voting
+
 Locking governance shares during voting ensures commitment and prevents gaming:
+
 - **Serious voting**: Forces careful consideration before voting
 - **Prevents manipulation**: Can't vote strategically then change
 - **Collective pressure**: Group must reach consensus or fail
 - **Clean process**: No vote buying or double-dealing
 
 ### No Proposal History Storage
+
 Proposal history is not stored on-chain to maintain efficiency:
+
 - **Storage optimization**: Reduces on-chain storage costs
 - **Event-based audit**: Events provide sufficient tracking
 - **Off-chain monitoring**: External systems can maintain history
@@ -338,6 +347,7 @@ No backwards incompatibilities, the system is designed to be additive and opt-in
 ## Security Considerations
 
 ### Call Authorization and Restrictions
+
 The governance system must implement strict call authorization to prevent malicious proposals:
 
 - **Whitelist approach**: Only pre-approved call types can be proposed
@@ -346,6 +356,7 @@ The governance system must implement strict call authorization to prevent malici
 - **Execution context**: All calls execute with subnet owner authority, not root authority
 
 ### Share Manipulation Prevention
+
 Several mechanisms prevent share-based attacks:
 
 - **Minimum thresholds**: 50% minimum voting threshold prevents low-barrier proposals
@@ -354,6 +365,7 @@ Several mechanisms prevent share-based attacks:
 - **Smart cancellation**: Automatic cancellation when thresholds become impossible
 
 ### Proposal Execution Security
+
 Proposal execution is designed to be secure and predictable:
 
 - **Automatic execution**: No manual intervention required, reducing human error
@@ -362,6 +374,7 @@ Proposal execution is designed to be secure and predictable:
 - **Failed execution handling**: System must handle execution failures gracefully
 
 ### Economic Security
+
 The profit distribution system includes several security measures:
 
 - **Alpha distribution**: Avoids TAO market manipulation
@@ -370,6 +383,7 @@ The profit distribution system includes several security measures:
 - **Accumulation mechanism**: Prevents manipulation of distribution timing
 
 ### Governance Attack Vectors
+
 The system is designed to resist common governance attacks:
 
 - **Proposal spam**: Single active proposal prevents competing proposals
@@ -379,6 +393,7 @@ The system is designed to resist common governance attacks:
 - **Time-based attacks**: Expiry blocks prevent indefinite proposals
 
 ### Key Management
+
 Shareholder key management is critical for system security:
 
 - **Coldkey security**: Governance shares are tied to coldkeys for security
@@ -387,6 +402,7 @@ Shareholder key management is critical for system security:
 - **Lost keys**: No recovery mechanism for lost shareholder keys
 
 ### Network Security
+
 The distributed subnet system maintains network security:
 
 - **Opt-in conversion**: Existing subnets are not automatically affected
@@ -399,9 +415,11 @@ The distributed subnet system maintains network security:
 ### Economic Scenarios
 
 #### Successful Profit Distribution
+
 **Scenario**: A distributed subnet with 3 shareholders (Alice: 40%, Bob: 35%, Charlie: 25%) receives 1000 alpha in owner cut.
 
 **Process**:
+
 1. Owner cut accumulates until `DistributedSubnetProfitInterval` (e.g., every 1000 blocks)
 2. System calculates: Alice gets 400 alpha, Bob gets 350 alpha, Charlie gets 250 alpha
 3. Alpha distributed directly to their hotkeys
@@ -410,9 +428,11 @@ The distributed subnet system maintains network security:
 **Result**: Fair, automatic distribution based on ownership percentages.
 
 #### Share Transfer Success
+
 **Scenario**: Alice wants to sell 10% of her shares to David.
 
 **Process**:
+
 1. Alice calls `transfer_profit_shares(distributed_subnet_id, 100, david_hotkey)`
 2. System validates Alice owns at least 100 shares
 3. Alice's shares reduced from 400 to 300, David receives 100 shares
@@ -423,9 +443,11 @@ The distributed subnet system maintains network security:
 ### Governance Scenarios
 
 #### Successful Proposal Execution
+
 **Scenario**: Bob proposes a change using `ShareProportionMoreThan(60%)` strategy.
 
 **Process**:
+
 1. Bob creates proposal (requires 10% minimum shares, Bob has 35%)
 2. Alice votes Yes (40% shares), Bob has created the proposal (35% shares)
 3. Total: 75% Yes votes, exceeds 60% threshold
@@ -435,9 +457,11 @@ The distributed subnet system maintains network security:
 **Result**: Democratic decision successfully implemented.
 
 #### Proposal Failure - Insufficient Support
+
 **Scenario**: Charlie proposes a change using `ShareProportionMoreThan(60%)` strategy.
 
 **Process**:
+
 1. Charlie creates proposal (has 25% shares, above 10% minimum)
 2. Alice votes No (40% shares), Bob votes No (35% shares)
 3. Total: 75% No votes, only 25% can vote Yes
@@ -447,9 +471,11 @@ The distributed subnet system maintains network security:
 **Result**: Proposal fails quickly, preventing wasted time on impossible proposals.
 
 #### Proposal Failure - Automatic Cancellation
+
 **Scenario**: Alice proposes a controversial change with `ShareProportionMoreThan(70%)` strategy.
 
 **Process**:
+
 1. Alice creates proposal (40% shares, above 10% minimum)
 2. Bob votes No (35% shares), Charlie votes No (25% shares)
 3. Total: 60% No votes, only 40% can vote Yes
@@ -459,9 +485,11 @@ The distributed subnet system maintains network security:
 **Result**: Proposal cancelled quickly, preventing wasted time on impossible proposals.
 
 #### Proposal Failure - Expiry
+
 **Scenario**: Alice proposes a change with `ShareProportionMoreThan(60%)` strategy, but not enough shareholders vote.
 
 **Process**:
+
 1. Alice creates proposal (40% shares, above 10% minimum)
 2. Only Alice votes Yes (40% shares), others don't vote
 3. Total: 40% Yes votes, below 60% threshold
@@ -475,16 +503,19 @@ The distributed subnet system maintains network security:
 The following features are considered for future development but are not included in the initial implementation:
 
 ## Share Lending
+
 - **Time-based lending**: Lend shares to someone else for N blocks, with automatic return to the original lender
 - **Flexible partnerships**: Enable temporary collaborations and testing periods
 - **Risk management**: Share owners retain ultimate ownership while allowing others to benefit
 
 ## Governance Delegation
+
 - **Delegation of governance shares**: Delegate voting power while retaining ownership
 - **Expertise delegation**: Allow domain experts to vote on behalf of shareholders
 - **Flexible governance**: Professional governance management without ownership transfer
 
 ## Advanced Governance Features
+
 - **Multiple proposals**: Allow multiple active proposals per subnet
 - **Partial voting**: Vote with only a portion of governance shares on specific proposals
 - **Enhanced flexibility**: More sophisticated governance mechanisms
