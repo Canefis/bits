@@ -1,4 +1,4 @@
-# BIT-000X: Distributed Subnet Ownership
+# BIT-0018: Distributed Subnet Ownership
 
 - **BIT Number:** 0018
 - **Title:** Distributed Subnet Ownership
@@ -37,9 +37,9 @@ As the Bittensor ecosystem matures, subnets are evolving from single-operator pr
 
 ### Core Mechanisms
 
-#### Distributed Subnet Creation
+#### Distributed Subnet Conversion
 
-A subnet can be converted to a distributed ownership model by calling the `create_distributed_subnet` extrinsic as the subnet owner. The on-chain accounts for distributed subnets are derived directly from an incrementing `DistributedSubnetId`. This process allocates ownership rights across multiple stakeholders through two types of shares:
+A subnet can be converted to a distributed ownership model by calling the `convert_to_distributed_subnet` extrinsic as the subnet owner. The on-chain accounts for distributed subnets are derived directly from an incrementing `DistributedSubnetId`. This process allocates ownership rights across multiple stakeholders through two types of shares:
 
 - **Profit Shares**: Economic rights that determine profit distribution
 - **Governance Shares**: Voting rights that control subnet governance decisions
@@ -47,7 +47,7 @@ A subnet can be converted to a distributed ownership model by calling the `creat
 Both share types are represented as per-mille (‰) values, where 1000 shares represent 100% ownership.
 
 ```rust
-pub fn create_distributed_subnet(
+pub fn convert_to_distributed_subnet(
     profit_shares: Vec<(T::AccountId /* Hotkey */, u64)>,
     governance_shares: Vec<(T::AccountId /* Coldkey */, u64)>
 ) -> DispatchResult
