@@ -57,7 +57,6 @@ pub fn convert_to_distributed_subnet(
 
 - The sum of all profit shares must not exceed 1000 (100%)
 - The sum of all governance shares must not exceed 1000 (100%)
-- If the sum of shares is less than 1000, the remaining shares are automatically assigned to the subnet owner
 - If either share type is empty, the subnet owner retains 100% ownership of that type
 - Minimum share allocation is configurable via `MinSubnetShare` (default: 1 per-mille (0.1%))
 - Maximum number of shareholders is configurable via `MaxSubnetShareholders` (default: 50)
@@ -477,10 +476,9 @@ The distributed subnet system maintains network security:
 **Process**:
 
 1. Alice creates proposal (40% shares, above 10% minimum)
-2. Bob votes No (35% shares), Charlie votes No (25% shares)
-3. Total: 60% No votes, only 40% can vote Yes
-4. System automatically cancels proposal (40% < 70% threshold)
-5. All locked shares are unlocked immediately
+2. Bob votes No (35% shares)
+3. System automatically cancels proposal because we will never reach above 70%
+4. All locked shares are unlocked immediately
 
 **Result**: Proposal cancelled quickly, preventing wasted time on impossible proposals.
 
